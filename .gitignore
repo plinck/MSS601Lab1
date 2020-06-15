@@ -3,6 +3,33 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# MAC
+**/.DS_Store
+
+# Crestron VTProe and SIMPL
+#*.pdf
+*.ir
+*.spz
+*.lpz
+*.vtz
+*.ush
+*.usp
+*.umc
+*.c3p
+*.xexe/
+*.ASV
+*.c3prj/
+*.smft
+*.hash
+*.arcv
+*.sgd
+*.sm2
+*.sig
+*.clz
+SPlsWork/
+*_archive.zip
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -351,3 +378,11 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# These came from Rider
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.DS_Store
