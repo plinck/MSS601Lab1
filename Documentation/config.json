@@ -1,0 +1,28 @@
+{
+	"touchpanels": [{
+			"id": 3,
+			"type": "Tsw760",
+			"label": "Kitchen"
+		},
+		{
+			"id": 4,
+			"type": "Tsw1060",
+			"label": "Living Room"
+		}
+	],
+	"sources": [{
+			"id": 1,
+			"type": "appletv",
+			"label": "ATV Living Room",
+			"icon": 48
+		}
+	],
+	"destinations": [{
+			"id": 1,
+			"type": "tv",
+			"label": "Living Room",
+			"icon": 60
+		}
+	],
+	"lastUpdate": ""
+}
