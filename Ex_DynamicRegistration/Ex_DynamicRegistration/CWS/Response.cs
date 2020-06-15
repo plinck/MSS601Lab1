@@ -10,7 +10,7 @@ using System.Text;
 using Crestron.SimplSharp;
 using Newtonsoft.Json;
 
-namespace Lab2.CWS
+ namespace Ex_DynamicRegistration
 {
     /// <summary>
     /// Class used to serialize object to a JSON string

@@ -15,6 +15,7 @@ using Crestron.SimplSharpPro;                    // For Basic SIMPL#Pro classes
 using Crestron.SimplSharpPro.CrestronThread;     // For Threading
 using Crestron.SimplSharpPro.DeviceSupport;      // For Generic Device Support
 using Crestron.SimplSharpPro.Diagnostics;        // For System Monitor Access
+using Crestron.SimplSharpPro.UI;                 // For xPanelForSmartGraphics
 
 namespace Ex_DynamicRegistration
 {
@@ -30,7 +31,7 @@ namespace Ex_DynamicRegistration
         /// <summary>
         /// Used for logging information to error log
         /// </summary>
-        private const string LogHeader = "[CS] ";
+        private const string LogHeader = "[MSS601Room1] ";
 
         /// <summary>
         /// Can be used to identify individual program.
@@ -60,6 +61,21 @@ namespace Ex_DynamicRegistration
         /// exit in time, the SIMPL#Pro program will exit.
         /// You cannot send / receive data in the constructor
         /// </summary>
+        ///
+        
+        private XpanelForSmartGraphics tp01;
+        private XpanelForSmartGraphics tp02;
+
+        /// <summary>
+        /// Second touchpanel used throughout this exercise
+        /// Could also be a Tsw or any other SmartGraphics enabled touchpanel
+        /// </summary>
+
+        /// <summary>
+        /// The CWS controller used for Lab 2
+        /// </summary>
+        private CWS.Controller controller;
+
         public ControlSystem()
             : base()
         {
@@ -71,7 +87,39 @@ namespace Ex_DynamicRegistration
                 CrestronEnvironment.SystemEventHandler += new SystemEventHandler(this.ControlSystem_ControllerSystemEventHandler);
                 CrestronEnvironment.ProgramStatusEventHandler += new ProgramStatusEventHandler(this.ControlSystem_ControllerProgramEventHandler);
                 CrestronEnvironment.EthernetEventHandler += new EthernetEventHandler(this.ControlSystem_ControllerEthernetEventHandler);
+                
+                if (this.SupportsEthernet)
+                {
+                    ErrorLog.Notice(string.Format(LogHeader + "Supports Ethernet"));
 
+                    this.tp01 = new XpanelForSmartGraphics(0x03, this);
+
+                    // YS: We will leave this in so they can understand what is happening
+                    this.tp01.SigChange += new SigEventHandler(this.Xpanel_SigChange);
+
+                    // YS: We will comment this out so they can create this eventhandler with all the logic on their own
+                    this.tp01.OnlineStatusChange += this.Xpanel_OnlineStatusChange;
+
+                    string sgdPath = string.Format($"{Directory.GetApplicationDirectory()}/XPanel_v1.sgd");
+
+                    if (this.tp01.Register() != eDeviceRegistrationUnRegistrationResponse.Success)
+                    {
+                        ErrorLog.Error(string.Format($"{LogHeader} Error registering XPanel: {this.tp01.RegistrationFailureReason}"));
+                    }
+                    else
+                    {
+                        this.tp01.LoadSmartObjects(sgdPath);
+                        ErrorLog.Error(string.Format($"{LogHeader} Loaded SmartObjects: {this.tp01.SmartObjects.Count}"));
+                        foreach (KeyValuePair<uint, SmartObject> smartObject in this.tp01.SmartObjects)
+                        {
+                            smartObject.Value.SigChange += new SmartObjectSigChangeEventHandler(this.Xpanel_SO_SigChange);
+                        }
+                    }
+                }
+                
+                // e.g. /Rooms/MSS601Room1/cws/api/config
+                this.controller = new CWS.Controller(this.tp01, "api");
+                ErrorLog.Notice(string.Format(LogHeader + "CWS.Controller started"));
                 // Potential way to make your program more dynamic
                 // Not being used in either Lab1 or Lab2
                 this.appId = InitialParametersClass.ApplicationNumber;
@@ -98,6 +146,33 @@ namespace Ex_DynamicRegistration
             Task.Run(() => this.SystemSetup());
         }
 
+        public void RegisterUnregisterXpanel(bool registration, uint id)
+        {
+            this.tp02 = new XpanelForSmartGraphics(id, this);
+
+            // YS: We will leave this in so they can understand what is happening
+            this.tp02.SigChange += new SigEventHandler(this.Xpanel_SigChange);
+
+            // YS: We will comment this out so they can create this eventhandler with all the logic on their own
+            this.tp02.OnlineStatusChange += this.Xpanel_OnlineStatusChange;
+
+            string sgdPath = string.Format(@"{0}/XPanel_Masters2020.sgd", Directory.GetApplicationDirectory());
+
+            if (this.tp02.Register() != eDeviceRegistrationUnRegistrationResponse.Success)
+            {
+                ErrorLog.Error(string.Format(LogHeader + "Error registering XPanel: {0}", this.tp02.RegistrationFailureReason));
+            }
+            else
+            {
+                this.tp02.LoadSmartObjects(sgdPath);
+                ErrorLog.Notice(string.Format(LogHeader + "Loaded SmartObjects: {0}", this.tp02.SmartObjects.Count));
+                foreach (KeyValuePair<uint, SmartObject> smartObject in this.tp02.SmartObjects)
+                {
+                    smartObject.Value.SigChange += new SmartObjectSigChangeEventHandler(this.Xpanel_SO_SigChange);
+                }
+            }
+        }
+        
         /// <summary>
         /// Event Handler for Ethernet events: Link Up and Link Down. 
         /// Use these events to close / re-open sockets, etc. 
@@ -126,6 +201,184 @@ namespace Ex_DynamicRegistration
 
                     break;
             }
+        }
+        
+        /// <summary>
+        /// Eventhandler for boolean/ushort/string sigs
+        /// </summary>
+        /// <param name="currentDevice">The device that triggered the event</param>
+        /// <param name="args">Contains the SigType, Sig.Number and Sig.Value and more</param>
+        public void Xpanel_SigChange(BasicTriList currentDevice, SigEventArgs args)
+        {
+            switch (args.Sig.Type)
+            {
+                case eSigType.Bool:
+                    ErrorLog.Notice(string.Format(LogHeader + "Boolean Received from Touch Panel: {0}, {1}", args.Sig.Number, args.Sig.BoolValue));
+                    switch (args.Sig.Number)
+                    {
+                        // YS: Level 1, exercise 2
+                        // Hello world button
+                        case 12:
+                            if (args.Sig.BoolValue == true)
+                            {
+                                currentDevice.StringInput[11].StringValue = "Hello World!";
+                            }
+                            else
+                            {
+                                currentDevice.StringInput[11].StringValue = string.Empty;
+                            }
+
+                            break;
+
+                        // YS: Level 2, exercise 1
+                        // toggle button
+                        case 21:
+                            if (args.Sig.BoolValue == true)
+                            {
+                                // toggle it, easy way
+                                currentDevice.BooleanInput[21].BoolValue = !currentDevice.BooleanInput[21].BoolValue;
+                                if (currentDevice.BooleanInput[21].BoolValue == true)
+                                {
+                                    currentDevice.StringInput[21].StringValue = "Hello World!";
+                                }
+                                else
+                                {
+                                    currentDevice.StringInput[21].StringValue = string.Empty;
+                                }
+                            }
+
+                            break;
+
+                        // YS: Level 2, exercise 2
+                        // interlock
+                        case 22:
+                        case 23:
+                        case 24:
+                            if (args.Sig.BoolValue == true)
+                            {
+                                // Loop through the possible interlocked buttons
+                                for (ushort i = 22; i <= 24; i++)
+                                {
+                                    currentDevice.BooleanInput[i].BoolValue = false;
+                                }
+
+                                // Set only the pressed button feedback to high
+                                currentDevice.BooleanInput[args.Sig.Number].BoolValue = true;
+
+                                // Set the correct text
+                                if (currentDevice.BooleanInput[22].BoolValue == true)
+                                {
+                                    currentDevice.StringInput[21].StringValue = "Hello World!";
+                                }
+                                else if (currentDevice.BooleanInput[23].BoolValue == true)
+                                {
+                                    currentDevice.StringInput[21].StringValue = "Hallo Wereld!";
+                                }
+                                else if (currentDevice.BooleanInput[24].BoolValue == true)
+                                {
+                                    currentDevice.StringInput[21].StringValue = "Hola Mundo!";
+                                }
+                            }
+
+                            break;
+                        case 25:
+                            if (args.Sig.BoolValue == true)
+                            {
+                                // Loop through the possible interlocked buttons
+                                for (ushort i = 22; i <= 24; i++)
+                                {
+                                    currentDevice.BooleanInput[i].BoolValue = false;
+                                }
+
+                                // Clear text field
+                                currentDevice.StringInput[21].StringValue = string.Empty;
+                            }
+
+                            break;
+
+                        // YS: Level 3, exercise 2
+                        // Register new touchpanel
+                        case 31:
+                            if (args.Sig.BoolValue == true)
+                            {
+                                // let's first flip the switch
+                                currentDevice.BooleanInput[31].BoolValue = !currentDevice.BooleanInput[31].BoolValue;
+
+                                // then use the value of the button to either register or unregister the touchpanel
+                                this.RegisterUnregisterXpanel(currentDevice.BooleanInput[31].BoolValue, currentDevice.ID + 1);
+                            }
+
+                            break;
+                    }
+
+                    break;
+                case eSigType.UShort:
+                    // ErrorLog.Error(string.Format(LogHeader + "Ushort Received from Touch Panel: {0}, {1}", args.Sig.Number, args.Sig.UShortValue));
+                    // YS: Level 3, exercise 1
+                    if (args.Sig.Number == 31)
+                    {
+                        ushort percentage = Convert.ToUInt16(args.Sig.UShortValue * 100 / 65535);
+
+                        // send it right back to analog join 32 after converting 0->65535 to 0->100
+                        currentDevice.UShortInput[32].UShortValue = percentage;
+
+                        currentDevice.UShortInput[31].UShortValue = args.Sig.UShortValue;
+
+                        if (percentage == 0)
+                        {
+                            currentDevice.UShortInput[33].UShortValue = 0;
+                        }
+                        else if (percentage > 0 && percentage <= 33)
+                        {
+                            currentDevice.UShortInput[33].UShortValue = 1;
+                        }
+                        else if (percentage > 33 && percentage <= 66)
+                        {
+                            currentDevice.UShortInput[33].UShortValue = 2;
+                        }
+                        else if (percentage > 66 && percentage <= 100)
+                        {
+                            currentDevice.UShortInput[33].UShortValue = 3;
+                        }
+                    }
+
+                    break;
+                case eSigType.String:
+                    // ErrorLog.Notice(string.Format(LogHeader + "String Received from Touch Panel: {0}, {1}", args.Sig.Number, args.Sig.StringValue));
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Online/Ofline event handler for Xpanel
+        /// </summary>
+        /// <param name="currentDevice">The device that triggered the event</param>
+        /// <param name="args">Contains DeviceOnline for status feedback</param>
+        public void Xpanel_OnlineStatusChange(GenericBase currentDevice, OnlineOfflineEventArgs args)
+        {
+            if (args.DeviceOnLine)
+            {
+                // if it was tp01 that triggered the event
+                if (currentDevice == this.tp01)
+                {
+                    // ErrorLog.Notice(string.Format(LogHeader + "{0} is online", tp01.Type));
+                    this.tp01.BooleanInput[11].BoolValue = args.DeviceOnLine;
+                }
+            }
+            else
+            {
+                // ErrorLog.Notice(string.Format(LogHeader + "{0} is offline", currentDevice.Description));
+            }
+        }
+
+        /// <summary>
+        /// Specific event handler for Smart Objects (not used in this exercise)
+        /// </summary>
+        /// <param name="currentDevice">The device that triggered the event</param>
+        /// <param name="args">Contains args.Sig.Type, args.Sig.Name, args.SmartObjectArgs.ID and more</param>
+        public void Xpanel_SO_SigChange(GenericBase currentDevice, SmartObjectEventArgs args)
+        {
+            // ErrorLog.Notice(string.Format(LogHeader + "Event Type: {0}, Signal: {1}, from SmartObject: {2}", args.Sig.Type, args.Sig.Name, args.SmartObjectArgs.ID));
         }
 
         /// <summary>
@@ -199,7 +452,7 @@ namespace Ex_DynamicRegistration
             }
             else
             {
-                ErrorLog.Error(LogHeader + "Unable to read config!");
+                ErrorLog.Error(string.Format(LogHeader + "Unable to read config!"));
             }
 
             return null;

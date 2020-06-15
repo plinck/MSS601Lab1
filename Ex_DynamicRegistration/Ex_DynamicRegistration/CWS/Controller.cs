@@ -15,8 +15,8 @@ using Crestron.SimplSharpPro.UI;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Lab2.CWS
-{
+ namespace Ex_DynamicRegistration.CWS
+ {
     /* Instructors notes
      */
 
@@ -36,7 +36,7 @@ namespace Lab2.CWS
         /// Where [ipaddress] is the ip address or hostname of the VC-4 server
         /// And [roomname] is the name used when creating a room instance of this program
         /// </summary>
-        //private string cwsPath = "http://ec2-18-188-67-188.us-east-2.compute.amazonaws.com/VirtualControl/Rooms/PAULLINCK2/cws/";
+        //private string cwsPath = "http://ec2-52-15-101-154.us-east-2.compute.amazonaws.com/VirtualControl/Rooms/PAULLINCK2/cws/";
         private string cwsPath;
 
         /// <summary>
@@ -85,9 +85,11 @@ namespace Lab2.CWS
         /// <param name="cwsPath">Additional CWS path. May be empty</param>
         public Controller(XpanelForSmartGraphics tp, string cwsPath)
         {
-            ErrorLog.Notice($"{LogHeader} Running CWS COntroller Constructor");
+            ErrorLog.Notice(string.Format($"{LogHeader} Running CWS Controller Constructor"));
             
             this.cwsPath = cwsPath;
+            ErrorLog.Notice(string.Format($"{LogHeader} CWS.Controller path : {cwsPath}"));
+
 
             this.StartServer();
 
@@ -99,43 +101,24 @@ namespace Lab2.CWS
         /// </summary>
         public void StartServer()
         {
-            ErrorLog.Notice($"{LogHeader} Starting CWS API Server");
+            ErrorLog.Notice(string.Format($"{LogHeader} Starting CWS API Server"));
 
             try
             {
                 this.cwsServerLock.Enter();
                 if (this.cwsServer == null)
                 {
-                    ErrorLog.Notice($"{LogHeader} Starting CWS API Server");
+                    ErrorLog.Notice(string.Format($"{LogHeader} Starting CWS API Server"));
                     this.cwsServer = new HttpCwsServer(this.cwsPath);
 
                     this.cwsServer.ReceivedRequestEvent += new HttpCwsRequestEventHandler(this.ReceivedRequestEvent);
 
-                    // Example GET route
-                    // There are a couple of things to keep in mind:
-                    // {data} defines a variable that can be used later in your code
-                    // DUMMY is a shorter name that can be used to "find" your route later on
-                    
-                    //this.cwsServer.Routes.Add(new HttpCwsRoute("dummygetroute/{data}") { Name = "DUMMYGET" });
-
-                    // TODO: Level1. Add your own HTTP CWS Route called "helloworld" 
-                    this.cwsServer.Routes.Add(new HttpCwsRoute("helloworld/{data}") {Name = "HELLOWORLD"});
-
-                    // Example POST route
-                    // Not necessary for Level1, this was added as a reference
-                    this.cwsServer.Routes.Add(new HttpCwsRoute("holamundo") { Name = "holamundo" });
-                    
-                    //Level2
-                    this.cwsServer.Routes.Add(new HttpCwsRoute("interlockstatus") {Name = "interlockstatus"});
-                    
-                    // Level 3
-                    this.cwsServer.Routes.Add(new HttpCwsRoute("getslider") {Name = "getslider"});
-                    this.cwsServer.Routes.Add(new HttpCwsRoute("postslider") { Name = "postslider" });
-                    this.cwsServer.Routes.Add(new HttpCwsRoute("log") {Name = "log"});
+                    // GET config file route
+                    this.cwsServer.Routes.Add(new HttpCwsRoute("config") {Name = "config"});
  
                     // register the server
                     this.cwsServer.Register();
-                    ErrorLog.Notice($"{LogHeader} Started CWS API Server");
+                    ErrorLog.Notice(string.Format($"{LogHeader} Started CWS API Server"));
                 }
                 else
                 {
@@ -196,58 +179,13 @@ namespace Lab2.CWS
                     {
                         switch (args.Context.Request.RouteData.Route.Name.ToUpper())
                         {
-                            // TODO: Level1. Not really a TODO, but we wanted to show you were you use the short name
-                            // This was defined on line 90 of this class
-                            case "HELLOWORLD":
-                                // Get the data from the GET request by making use of the "data" variable
-                                // that was defined on line 90 of this class
+                            case "CONFIG":
+                                // Level 3
+                                ErrorLog.Notice($"{LogHeader} GET Request CONFIG running ...");
                                 
-                                // TODO: Level1. Create your own code to handle the "helloworld" CWS route
-                                string data = args.Context.Request.RouteData.Values["data"].ToString();
-                                    
-                                // TODO: Level1. From that code, send the received data to serial join 11
-                                this.tp.StringInput[11].StringValue = data;
-
-                                // TODO: Level1. Implement WriteWithAppend() in the FileControl.cs file to write the received data to User/logfile.txt
-                                string appDir = Directory.GetApplicationRootDirectory(); 
-                                FileControl.WriteWithAppend(data, $"{appDir}/User/logfile.txt");
-
-                                // TODO: Level1. Return the received text as a response to this request
-                                args.Context.Response.Write("Hello Atlanta!", true);
-
-                                // For these exercises, take a good look at the supplied DUMMYGET route that is defined a few lines above.
-                                break;
-                            
-                            case "INTERLOCKSTATUS":
-                                ErrorLog.Notice($"{LogHeader} ReceivedRequestEvent INTERLOCKSTATUS running ...");
-                                
-                                var interlockResponse = new InterlockResponse();
-                                interlockResponse.status = new List<ButtonStatus>();
-                                interlockResponse.status.Add(new ButtonStatus(tp.BooleanInput[22].BoolValue));
-                                interlockResponse.status.Add(new ButtonStatus(tp.BooleanInput[23].BoolValue));
-                                interlockResponse.status.Add(new ButtonStatus(tp.BooleanInput[24].BoolValue));
-
-                                string JSONResponseString = JsonConvert.SerializeObject(interlockResponse, Formatting.Indented);
+                                string JSONResponseString = FileControl.ReadFile($"{Directory.GetApplicationRootDirectory()}/User/config.json");
                                 ErrorLog.Notice($"{LogHeader} returning interlock status {JSONResponseString}");
                                 args.Context.Response.Write(JSONResponseString, true);
-
-                                break;
-                            
-                            case "GETSLIDER":
-                                // Level 3
-                                ErrorLog.Notice($"{LogHeader} ReceivedRequestEvent SLIDER running ...");
-                                ushort percentage = Convert.ToUInt16(tp.UShortInput[31].UShortValue / 65535 * 100);
-                                JSONResponseString = $"{{\"value\": {percentage}%}}";
-                                args.Context.Response.Write(JSONResponseString, true);
-                                
-                                break;
-                            
-                            case "LOG":
-                                // Level 3
-                                ErrorLog.Notice($"{LogHeader} GET Request LOG running ...");
-                                
-                                JSONResponseString = FileControl.ReadFile($"{Directory.GetApplicationRootDirectory()}/User/logfile.txt");
-                                args.Context.Response.Write($"{{ \"log\" : \"{JSONResponseString}\" }}", true);
                                 
                                 break;
     
@@ -288,20 +226,6 @@ namespace Lab2.CWS
                                 
                                 args.Context.Response.Write(JSONResponseString, true);
 
-                                break;
-                            
-                            case "POSTSLIDER":
-                                // Level 3 payload {"value": 50}
-                                ErrorLog.Notice($"{LogHeader} POST Request SLIDER running ...");
-                                SliderRequest sliderRequest = JsonConvert.DeserializeObject<SliderRequest>(contents);
-
-                                var sliderString = $"{sliderRequest.value}";
-                                ErrorLog.Notice($"{LogHeader} Adding {sliderRequest.value} to end of file {Directory.GetApplicationRootDirectory()}/User/logfile.txt ...");
-                                FileControl.WriteWithAppend(sliderString, $"{Directory.GetApplicationRootDirectory()}/User/logfile.txt");
-                                tp.UShortInput[31].UShortValue = (ushort)(sliderRequest.value / 65535 * 100);
-
-                                args.Context.Response.Write($"{{\"statusvalue\": \"{sliderRequest.value}\"}}", true);
-                                
                                 break;
 
                             default:

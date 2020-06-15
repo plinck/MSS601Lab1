@@ -14,7 +14,7 @@ using Crestron.SimplSharpPro;                   // For Basic SIMPL#Pro classes
 using Crestron.SimplSharpPro.CrestronThread;    // For Threading
 using Newtonsoft.Json;
 
-namespace Lab2.CWS
+ namespace Ex_DynamicRegistration
 {
     /// <summary>
     /// Handles everything related to reading / writing files
