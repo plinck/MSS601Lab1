@@ -10,7 +10,7 @@
 			"label": "Living Room"
 		},
 		{
-			"id": 6,
+			"id": 5,
 			"type": "Tsw760",
 			"label": "Theater"
 		},
@@ -25,28 +25,72 @@
 			"label": "Basement"
 		},
 		{
-			"id": 7,
+			"id": 8,
 			"type": "Tsw760",
 			"label": "Master Bedroom"
 		},
 		{
-			"id": 8,
+			"id": 9,
 			"type": "Tsw1060",
 			"label": "Utopia"
 		}
 	],
-	"sources": [{
+	"sources": [
+		{
 			"id": 1,
 			"type": "appletv",
-			"label": "ATV Living Room",
+			"label": "Apple TV",
 			"icon": 48
+		},
+		{
+			"id": 2,
+			"type": "environment",
+			"label": "Environment",
+			"icon": 28
+		},
+		{
+			"id": 3,
+			"type": "climate",
+			"label": "HVAC",
+			"icon": 2
+		},
+		{
+			"id": 4,
+			"type": "dvr",
+			"label": "YouTubeTV",
+			"icon": 5
+		},
+		{
+			"id": 5,
+			"type": "lights",
+			"label": "Lighting",
+			"icon": 13
 		}
 	],
-	"destinations": [{
+	"destinations": [
+		{
 			"id": 1,
 			"type": "tv",
-			"label": "Living Room",
+			"label": "Kitchen",
 			"icon": 60
+		},
+		{
+			"id": 2,
+			"type": "tv",
+			"label": "Living Room",
+			"icon": 59
+		},
+		{
+			"id": 3,
+			"type": "tv",
+			"label": "Theater",
+			"icon": 63
+		},
+		{
+			"id": 4,
+			"type": "tv",
+			"label": "Utopia",
+			"icon": 85
 		}
 	],
 	"lastUpdate": ""

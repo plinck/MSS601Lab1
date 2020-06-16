@@ -60,6 +60,22 @@ namespace Ex_DynamicRegistration
                     if (this.tp.Register())
                     {
                         ErrorLog.Info($"{LogHeader} created and registered tp {label}");
+                        
+                        tp.UserInterface.SmartObjects[1].UShortInput["Set Number of Items"].UShortValue = (ushort)config.Sources.Length;
+                        for (var i = 0; i < config.Sources.Length; i++)
+                        {
+                            tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
+                                (ushort) config.Sources[i].Icon;
+                            ErrorLog.Info($"{LogHeader} Set [Item {i+1} Icon Analog] {config.Sources[i].Icon}");
+                        }
+                        
+                        tp.UserInterface.SmartObjects[2].UShortInput["Set Number of Items"].UShortValue = (ushort)config.Destinations.Length;
+                        for (var i = 0; i < config.Destinations.Length; i++)
+                        {
+                            tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
+                                (ushort) config.Destinations[i].Icon;
+                            ErrorLog.Info($"{LogHeader} Set [Item {i+1} Icon Analog] {config.Destinations[i].Icon}");
+                        }
                     }
                     else
                     {
