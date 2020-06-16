@@ -110,7 +110,7 @@ namespace Ex_DynamicRegistration.UI
 
                 if (this.UserInterface.Register() != Crestron.SimplSharpPro.eDeviceRegistrationUnRegistrationResponse.Success)
                 {
-                    ErrorLog.Error(LogHeader + "Error registring UI {0}", this.Label);
+                    ErrorLog.Error(LogHeader + "Error registering UI {0}", this.Label);
                     return false;
                 }
                 else

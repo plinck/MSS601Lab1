@@ -53,13 +53,10 @@ namespace Ex_DynamicRegistration
 
         
         /// <summary>
-        /// These are temp classes I used to get started - not relally part of exercise.
+        /// These are temp classes I used to get started and using for CWS
         /// <summary>
-        private XpanelForSmartGraphics tp01;
-        private XpanelForSmartGraphics tp02;
-
-        private List<XpanelForSmartGraphics> touchpanels = List<XpanelForSmartGraphics>();
-
+        private readonly XpanelForSmartGraphics tpForCWS;
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlSystem" /> class.
         /// <summary>
@@ -96,27 +93,21 @@ namespace Ex_DynamicRegistration
                 
                 if (this.SupportsEthernet)
                 {
-                    ErrorLog.Notice(string.Format(LogHeader + "Supports Ethernet"));
-
-                    this.tp01 = new XpanelForSmartGraphics(0x03, this);
-
-                    // YS: We will leave this in so they can understand what is happening
-                    this.tp01.SigChange += new SigEventHandler(this.Xpanel_SigChange);
-
-                    // YS: We will comment this out so they can create this eventhandler with all the logic on their own
-                    this.tp01.OnlineStatusChange += this.Xpanel_OnlineStatusChange;
+                    this.tpForCWS = new XpanelForSmartGraphics(0x03, this);
+                    this.tpForCWS.SigChange += new SigEventHandler(this.Xpanel_SigChange);
+                    this.tpForCWS.OnlineStatusChange += this.Xpanel_OnlineStatusChange;
 
                     string sgdPath = string.Format($"{Directory.GetApplicationDirectory()}/XPanel_v1.sgd");
-
-                    if (this.tp01.Register() != eDeviceRegistrationUnRegistrationResponse.Success)
+                    if (this.tpForCWS.Register() != eDeviceRegistrationUnRegistrationResponse.Success)
                     {
-                        ErrorLog.Error(string.Format($"{LogHeader} Error registering XPanel: {this.tp01.RegistrationFailureReason}"));
+                        ErrorLog.Error(string.Format(
+                            $"{LogHeader} Error registering XPanel: {this.tpForCWS.RegistrationFailureReason}"));
                     }
                     else
                     {
-                        this.tp01.LoadSmartObjects(sgdPath);
-                        ErrorLog.Error(string.Format($"{LogHeader} Loaded SmartObjects: {this.tp01.SmartObjects.Count}"));
-                        foreach (KeyValuePair<uint, SmartObject> smartObject in this.tp01.SmartObjects)
+                        this.tpForCWS.LoadSmartObjects(sgdPath);
+                        ErrorLog.Error(string.Format($"{LogHeader} Loaded SmartObjects: {this.tpForCWS.SmartObjects.Count}"));
+                        foreach (KeyValuePair<uint, SmartObject> smartObject in this.tpForCWS.SmartObjects)
                         {
                             smartObject.Value.SigChange += new SmartObjectSigChangeEventHandler(this.Xpanel_SO_SigChange);
                         }
@@ -124,7 +115,7 @@ namespace Ex_DynamicRegistration
                 }
                 
                 // e.g. /Rooms/MSS601Room1/cws/api/config
-                this.controller = new CWS.Controller(this.tp01, "api");
+                this.controller = new CWS.Controller(this.tpForCWS, "api");
                 ErrorLog.Notice(string.Format(LogHeader + "CWS.Controller started"));
                 // Potential way to make your program more dynamic
                 // Not being used in either Lab1 or Lab2
@@ -151,33 +142,7 @@ namespace Ex_DynamicRegistration
         {
             Task.Run(() => this.SystemSetup());
         }
-
-        public void RegisterUnregisterXpanel(bool registration, uint id)
-        {
-            this.tp02 = new XpanelForSmartGraphics(id, this);
-
-            // YS: We will leave this in so they can understand what is happening
-            this.tp02.SigChange += new SigEventHandler(this.Xpanel_SigChange);
-
-            // YS: We will comment this out so they can create this eventhandler with all the logic on their own
-            this.tp02.OnlineStatusChange += this.Xpanel_OnlineStatusChange;
-
-            string sgdPath = string.Format(@"{0}/XPanel_Masters2020.sgd", Directory.GetApplicationDirectory());
-
-            if (this.tp02.Register() != eDeviceRegistrationUnRegistrationResponse.Success)
-            {
-                ErrorLog.Error(string.Format(LogHeader + "Error registering XPanel: {0}", this.tp02.RegistrationFailureReason));
-            }
-            else
-            {
-                this.tp02.LoadSmartObjects(sgdPath);
-                ErrorLog.Notice(string.Format(LogHeader + "Loaded SmartObjects: {0}", this.tp02.SmartObjects.Count));
-                foreach (KeyValuePair<uint, SmartObject> smartObject in this.tp02.SmartObjects)
-                {
-                    smartObject.Value.SigChange += new SmartObjectSigChangeEventHandler(this.Xpanel_SO_SigChange);
-                }
-            }
-        }
+        
         
         /// <summary>
         /// Event Handler for Ethernet events: Link Up and Link Down. 
@@ -302,19 +267,6 @@ namespace Ex_DynamicRegistration
 
                             break;
 
-                        // YS: Level 3, exercise 2
-                        // Register new touchpanel
-                        case 31:
-                            if (args.Sig.BoolValue == true)
-                            {
-                                // let's first flip the switch
-                                currentDevice.BooleanInput[31].BoolValue = !currentDevice.BooleanInput[31].BoolValue;
-
-                                // then use the value of the button to either register or unregister the touchpanel
-                                this.RegisterUnregisterXpanel(currentDevice.BooleanInput[31].BoolValue, currentDevice.ID + 1);
-                            }
-
-                            break;
                     }
 
                     break;
@@ -364,11 +316,11 @@ namespace Ex_DynamicRegistration
         {
             if (args.DeviceOnLine)
             {
-                // if it was tp01 that triggered the event
-                if (currentDevice == this.tp01)
+                // if it was tpForCWS that triggered the event
+                if (currentDevice == this.tpForCWS)
                 {
-                    // ErrorLog.Notice(string.Format(LogHeader + "{0} is online", tp01.Type));
-                    this.tp01.BooleanInput[11].BoolValue = args.DeviceOnLine;
+                    ErrorLog.Notice(string.Format(LogHeader + "{0} is online", tpForCWS.Type));
+                    this.tpForCWS.BooleanInput[11].BoolValue = args.DeviceOnLine;
                 }
             }
             else
@@ -452,10 +404,11 @@ namespace Ex_DynamicRegistration
             {
             }
 
-            if (this.config.ReadConfig(Path.Combine(Directory.GetApplicationRootDirectory(), "/User/config.json")))
+            var configFile = $"{Directory.GetApplicationRootDirectory()}/User/config.json";
+            ErrorLog.Notice($"{LogHeader} trying to read config file: {configFile} in dir {Directory.GetApplicationRootDirectory()}");
+            if (this.config.ReadConfig(configFile))
 			{
                 this.manager = new SystemManager(this.config.RoomConfig, this);
-                this.SetupTouchPanels();
             }
             else
             {
@@ -463,22 +416,6 @@ namespace Ex_DynamicRegistration
             }
 
             return null;
-        }
-        private void SetupTouchPanels()
-        {
-            // Register Panels dynamically
-            foreach (var tp in this.config.RoomConfig.Touchpanels)
-            {
-                string type = tp.Type;
-                unit id = tp.Id;
-                string label = tp.Label;
-                
-                this.touchpanels = new TouchpanelUI("Tsw760", 0x04, "Tsw760-04", this);
-                ErrorLog.Error($"{LogHeader} created tp {label}");
-            }
-
-            
-
         }
     } // Class
 } // Namespace
