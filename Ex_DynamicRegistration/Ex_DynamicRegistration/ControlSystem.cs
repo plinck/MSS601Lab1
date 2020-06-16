@@ -15,7 +15,8 @@ using Crestron.SimplSharpPro;                    // For Basic SIMPL#Pro classes
 using Crestron.SimplSharpPro.CrestronThread;     // For Threading
 using Crestron.SimplSharpPro.DeviceSupport;      // For Generic Device Support
 using Crestron.SimplSharpPro.Diagnostics;        // For System Monitor Access
-using Crestron.SimplSharpPro.UI;                 // For xPanelForSmartGraphics
+using Crestron.SimplSharpPro.UI;
+using Ex_DynamicRegistration.UI; // For xPanelForSmartGraphics
 
 namespace Ex_DynamicRegistration
 {
@@ -50,22 +51,17 @@ namespace Ex_DynamicRegistration
         /// </summary>
         private SystemManager manager;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ControlSystem" /> class.
-        /// Use the constructor to:
-        /// * Initialize the maximum number of threads (max = 400)
-        /// * Register devices
-        /// * Register event handlers
-        /// * Add Console Commands
-        /// Please be aware that the constructor needs to exit quickly; if it doesn't
-        /// exit in time, the SIMPL#Pro program will exit.
-        /// You cannot send / receive data in the constructor
-        /// </summary>
-        ///
         
+        /// <summary>
+        /// These are temp classes I used to get started - not relally part of exercise.
+        /// <summary>
         private XpanelForSmartGraphics tp01;
         private XpanelForSmartGraphics tp02;
 
+        private List<XpanelForSmartGraphics> touchpanels = List<XpanelForSmartGraphics>();
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ControlSystem" /> class.
         /// <summary>
         /// Second touchpanel used throughout this exercise
         /// Could also be a Tsw or any other SmartGraphics enabled touchpanel
@@ -76,6 +72,16 @@ namespace Ex_DynamicRegistration
         /// </summary>
         private CWS.Controller controller;
 
+        /// Use the constructor to:
+        /// * Initialize the maximum number of threads (max = 400)
+        /// * Register devices
+        /// * Register event handlers
+        /// * Add Console Commands
+        /// Please be aware that the constructor needs to exit quickly; if it doesn't
+        /// exit in time, the SIMPL#Pro program will exit.
+        /// You cannot send / receive data in the constructor
+        /// </summary>
+        ///
         public ControlSystem()
             : base()
         {
@@ -449,6 +455,7 @@ namespace Ex_DynamicRegistration
             if (this.config.ReadConfig(Path.Combine(Directory.GetApplicationRootDirectory(), "/User/config.json")))
 			{
                 this.manager = new SystemManager(this.config.RoomConfig, this);
+                this.SetupTouchPanels();
             }
             else
             {
@@ -457,5 +464,21 @@ namespace Ex_DynamicRegistration
 
             return null;
         }
-    }
-}
+        private void SetupTouchPanels()
+        {
+            // Register Panels dynamically
+            foreach (var tp in this.config.RoomConfig.Touchpanels)
+            {
+                string type = tp.Type;
+                unit id = tp.Id;
+                string label = tp.Label;
+                
+                this.touchpanels = new TouchpanelUI("Tsw760", 0x04, "Tsw760-04", this);
+                ErrorLog.Error($"{LogHeader} created tp {label}");
+            }
+
+            
+
+        }
+    } // Class
+} // Namespace

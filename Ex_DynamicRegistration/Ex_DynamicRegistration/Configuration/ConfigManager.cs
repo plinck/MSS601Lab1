@@ -79,14 +79,18 @@ namespace Ex_DynamicRegistration.Configuration
                 configLock.Enter();
 
                 // Open, read and close the file
-                using (StreamReader file = new StreamReader(configFile))
-                {
-                    configData = file.ReadToEnd();
-                    file.Close();
-                }
-
+                // If you don't want an exception to be thrown which would potentially stop the program,
+                // you could throw a try/catch around the method which loads the configuration file so that
+                // the exception can be caught so that you could show the exception message on screen,
+                // rather than leaving it be thrown (unhandled)
                 try
                 {
+                    using (StreamReader file = new StreamReader(configFile))
+                    {
+                        configData = file.ReadToEnd();
+                        file.Close();
+                    }
+
                     // Try to deserialize into a Room object. If this fails, the JSON file is probably malformed
                     this.RoomConfig = JsonConvert.DeserializeObject<ConfigData.Configuration>(configData);
                     ErrorLog.Notice(LogHeader + "Config file loaded!");
