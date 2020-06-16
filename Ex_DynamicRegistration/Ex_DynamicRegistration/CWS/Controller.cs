@@ -211,21 +211,6 @@ using Newtonsoft.Json.Linq;
                         {
                             case "HOLAMUNDO":
                                 ErrorLog.Notice($"{LogHeader} ReceivedRequestEvent HOLAMUNDO running ...");
-                                string JSONBody = contents;
-                                // echo request in response (for initial testing)
-                                // args.Context.Response.Write(JSONBody, true);
-                                
-                                Request request = JsonConvert.DeserializeObject<Request>(JSONBody);
-
-                                string data = request.text;
-                                ErrorLog.Notice($"{LogHeader} Adding {data} to end of file {Directory.GetApplicationRootDirectory()}/User/logfile.txt ...");
-                                FileControl.WriteWithAppend(data, $"{Directory.GetApplicationRootDirectory()}/User/logfile.txt");
-                                
-                                // set the button properly to send back
-                                string JSONResponseString = this.tp.BooleanInput[21].BoolValue ? "{\"button\": true}" : "{\"button\": false}";
-                                
-                                args.Context.Response.Write(JSONResponseString, true);
-
                                 break;
 
                             default:

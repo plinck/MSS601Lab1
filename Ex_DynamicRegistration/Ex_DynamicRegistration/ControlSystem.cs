@@ -106,17 +106,17 @@ namespace Ex_DynamicRegistration
                     else
                     {
                         this.tpForCWS.LoadSmartObjects(sgdPath);
-                        ErrorLog.Error(string.Format($"{LogHeader} Loaded SmartObjects: {this.tpForCWS.SmartObjects.Count}"));
+                        ErrorLog.Error($"{LogHeader} Loaded SmartObjects: {this.tpForCWS.SmartObjects.Count}");
                         foreach (KeyValuePair<uint, SmartObject> smartObject in this.tpForCWS.SmartObjects)
                         {
                             smartObject.Value.SigChange += new SmartObjectSigChangeEventHandler(this.Xpanel_SO_SigChange);
                         }
+                        // e.g. /Rooms/MSS601Room1/cws/api/config
+                        this.controller = new CWS.Controller(this.tpForCWS, "api");
+                        ErrorLog.Notice(string.Format(LogHeader + "CWS.Controller started"));
                     }
                 }
                 
-                // e.g. /Rooms/MSS601Room1/cws/api/config
-                this.controller = new CWS.Controller(this.tpForCWS, "api");
-                ErrorLog.Notice(string.Format(LogHeader + "CWS.Controller started"));
                 // Potential way to make your program more dynamic
                 // Not being used in either Lab1 or Lab2
                 this.appId = InitialParametersClass.ApplicationNumber;

@@ -59,12 +59,6 @@
 			"type": "dvr",
 			"label": "YouTubeTV",
 			"icon": 5
-		},
-		{
-			"id": 5,
-			"type": "lights",
-			"label": "Lighting",
-			"icon": 13
 		}
 	],
 	"destinations": [
@@ -78,19 +72,19 @@
 			"id": 2,
 			"type": "tv",
 			"label": "Living Room",
-			"icon": 59
+			"icon": 83
 		},
 		{
 			"id": 3,
 			"type": "tv",
 			"label": "Theater",
-			"icon": 63
+			"icon": 83
 		},
 		{
 			"id": 4,
 			"type": "tv",
 			"label": "Utopia",
-			"icon": 85
+			"icon": 83
 		}
 	],
 	"lastUpdate": ""

@@ -61,31 +61,39 @@ namespace Ex_DynamicRegistration
                     {
                         ErrorLog.Info($"{LogHeader} created and registered tp {label}");
                         
+                        // TODO: Level1. Dynamically set up sources using the config file
+                        ErrorLog.Info($"{LogHeader} Nbr of Smart Object Sources: {config.Sources.Length}");
+                        ErrorLog.Info($"{LogHeader} Nbr of Smart Object Destinations: {config.Destinations.Length}");
+
                         tp.UserInterface.SmartObjects[1].UShortInput["Set Number of Items"].UShortValue = (ushort)config.Sources.Length;
                         for (var i = 0; i < config.Sources.Length; i++)
                         {
-                            tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
-                                (ushort) config.Sources[i].Icon;
-                            ErrorLog.Info($"{LogHeader} Set [Item {i+1} Icon Analog] {config.Sources[i].Icon}");
+                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
+                            //     config.Sources[i].Icon;
+                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Text"].Name =
+                            //     config.Sources[i].Label;
+                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Serial"].Name =
+                            //     config.Sources[i].Label;
+                            // ErrorLog.Info($"{LogHeader} SOURCE: Set [Item {i+1} Icon Analog/Text] {config.Sources[i].Icon} {config.Sources[i].Label}");
                         }
                         
+                        // TODO: Level1. Dynamically set up destinations using the config file
                         tp.UserInterface.SmartObjects[2].UShortInput["Set Number of Items"].UShortValue = (ushort)config.Destinations.Length;
+                        ErrorLog.Info($"{LogHeader} Nbr of Smart Object Destinations: {config.Destinations.Length}");
                         for (var i = 0; i < config.Destinations.Length; i++)
                         {
-                            tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
-                                (ushort) config.Destinations[i].Icon;
-                            ErrorLog.Info($"{LogHeader} Set [Item {i+1} Icon Analog] {config.Destinations[i].Icon}");
+                            // tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
+                            //     config.Destinations[i].Icon;
+                            // tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Text"].Name =
+                            //     config.Destinations[i].Label;
+                            ErrorLog.Info($"{LogHeader} DESTINATION: Set [Item {i+1} Icon Analog] {config.Destinations[i].Icon}");
                         }
                     }
                     else
                     {
                         ErrorLog.Error($"{LogHeader} Error created and registering tp {label}");
                     }
-
-                    // TODO: Level1. Dynamically set up sources using the config file
-
-                    // TODO: Level1. Dynamically set up destinations using the config file
-
+                    
                     // TODO: Level2. Implement the additional subsystem dynamically.
                     // Please see Student Guide for more explanation.
                 }
