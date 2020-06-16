@@ -8,6 +8,31 @@
 			"id": 4,
 			"type": "Tsw1060",
 			"label": "Living Room"
+		},
+		{
+			"id": 6,
+			"type": "Tsw760",
+			"label": "Theater"
+		},
+		{
+			"id": 6,
+			"type": "Tsw760",
+			"label": "Main Dock"
+		},
+		{
+			"id": 7,
+			"type": "Tsw760",
+			"label": "Basement"
+		},
+		{
+			"id": 7,
+			"type": "Tsw760",
+			"label": "Master Bedroom"
+		},
+		{
+			"id": 8,
+			"type": "Tsw1060",
+			"label": "Utopia"
 		}
 	],
 	"sources": [{

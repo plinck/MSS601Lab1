@@ -47,7 +47,7 @@ namespace Ex_DynamicRegistration
             {
                 this.touchpanels = new Dictionary<string, BasicTriListWithSmartObject>();
                 
-                // TODO: Level1. Implement touchpanel + sources + destinations
+                // TODO: Level1. Implement touchPanel + sources + destinations
                 foreach (var touchPanel in config.Touchpanels)
                 {
                     // TODO: Level1. Create new instance of TouchpanelUI

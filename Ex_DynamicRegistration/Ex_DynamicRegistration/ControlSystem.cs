@@ -93,7 +93,7 @@ namespace Ex_DynamicRegistration
                 
                 if (this.SupportsEthernet)
                 {
-                    this.tpForCWS = new XpanelForSmartGraphics(0x03, this);
+                    this.tpForCWS = new XpanelForSmartGraphics(0x90, this);
                     this.tpForCWS.SigChange += new SigEventHandler(this.Xpanel_SigChange);
                     this.tpForCWS.OnlineStatusChange += this.Xpanel_OnlineStatusChange;
 
