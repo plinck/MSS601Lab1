@@ -78,13 +78,31 @@
 			"id": 3,
 			"type": "tv",
 			"label": "Theater",
-			"icon": 83
+			"icon": 54
 		},
 		{
 			"id": 4,
 			"type": "tv",
 			"label": "Utopia",
-			"icon": 83
+			"icon": 55
+		},
+		{
+			"id": 5,
+			"type": "tv",
+			"label": "Master",
+			"icon": 56
+		},
+		{
+			"id": 6,
+			"type": "tv",
+			"label": "Master",
+			"icon": 57
+		},
+		{
+			"id": 7,
+			"type": "tv",
+			"label": "Master",
+			"icon": 58
 		}
 	],
 	"lastUpdate": ""

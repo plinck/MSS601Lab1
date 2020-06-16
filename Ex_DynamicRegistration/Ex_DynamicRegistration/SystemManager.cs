@@ -70,8 +70,8 @@ namespace Ex_DynamicRegistration
                         {
                             tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
                                 config.Sources[i].Icon;
-                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Text"].Name =
-                            //     config.Sources[i].Label;
+                            tp.UserInterface.SmartObjects[1].StringInput[$"Set Item {i + 1} Text"].StringValue =
+                                config.Sources[i].Label;
                             ErrorLog.Info($"{LogHeader} SOURCE: Set [Item {i+1} Icon Analog/Text] {config.Sources[i].Icon} {config.Sources[i].Label}");
                         }
                         
@@ -82,8 +82,8 @@ namespace Ex_DynamicRegistration
                         {
                             tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
                                 config.Destinations[i].Icon;
-                            // tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Text"].Name =
-                            //     config.Destinations[i].Label;
+                            tp.UserInterface.SmartObjects[2].StringInput[$"Set Item {i + 1} Text"].StringValue =
+                                config.Destinations[i].Label;
                             ErrorLog.Info($"{LogHeader} DESTINATION: Set [Item {i+1} Icon Analog] {config.Destinations[i].Icon}");
                         }
                     }
