@@ -68,13 +68,11 @@ namespace Ex_DynamicRegistration
                         tp.UserInterface.SmartObjects[1].UShortInput["Set Number of Items"].UShortValue = (ushort)config.Sources.Length;
                         for (var i = 0; i < config.Sources.Length; i++)
                         {
-                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
-                            //     config.Sources[i].Icon;
-                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Text"].Name =
+                            tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
+                                config.Sources[i].Icon;
+                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Text"].Name =
                             //     config.Sources[i].Label;
-                            // tp.UserInterface.SmartObjects[1].UShortInput[$"Set Item {i+1} Icon Serial"].Name =
-                            //     config.Sources[i].Label;
-                            // ErrorLog.Info($"{LogHeader} SOURCE: Set [Item {i+1} Icon Analog/Text] {config.Sources[i].Icon} {config.Sources[i].Label}");
+                            ErrorLog.Info($"{LogHeader} SOURCE: Set [Item {i+1} Icon Analog/Text] {config.Sources[i].Icon} {config.Sources[i].Label}");
                         }
                         
                         // TODO: Level1. Dynamically set up destinations using the config file
@@ -82,9 +80,9 @@ namespace Ex_DynamicRegistration
                         ErrorLog.Info($"{LogHeader} Nbr of Smart Object Destinations: {config.Destinations.Length}");
                         for (var i = 0; i < config.Destinations.Length; i++)
                         {
-                            // tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
-                            //     config.Destinations[i].Icon;
-                            // tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Text"].Name =
+                            tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Icon Analog"].UShortValue =
+                                config.Destinations[i].Icon;
+                            // tp.UserInterface.SmartObjects[2].UShortInput[$"Set Item {i+1} Text"].Name =
                             //     config.Destinations[i].Label;
                             ErrorLog.Info($"{LogHeader} DESTINATION: Set [Item {i+1} Icon Analog] {config.Destinations[i].Icon}");
                         }
