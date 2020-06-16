@@ -15,6 +15,7 @@ using Crestron.SimplSharpPro.CrestronThread;     // For Threading
 using Crestron.SimplSharpPro.DeviceSupport;      // For Generic Device Support
 using Crestron.SimplSharpPro.Diagnostics;        // For System Monitor Access
 using Crestron.SimplSharpPro.UI;
+using Ex_DynamicRegistration.UI;
 
 namespace Ex_DynamicRegistration
 {
@@ -23,6 +24,8 @@ namespace Ex_DynamicRegistration
     /// </summary>
     public class SystemManager
     {
+        private const string LogHeader = "[MSS601Room1] ";
+
         /// <summary>
         /// Keeps track of all the touchpanels that are registered
         /// </summary>
@@ -45,10 +48,23 @@ namespace Ex_DynamicRegistration
                 this.touchpanels = new Dictionary<string, BasicTriListWithSmartObject>();
                 
                 // TODO: Level1. Implement touchpanel + sources + destinations
-                foreach (var touchpanel in config.Touchpanels)
+                foreach (var touchPanel in config.Touchpanels)
                 {
                     // TODO: Level1. Create new instance of TouchpanelUI
                     // ! Don't forget to use Register() from TouchpanelUI class !
+                    string type = touchPanel.Type;
+                    uint id = touchPanel.Id;
+                    string label = touchPanel.Label;
+
+                    this.tp = new TouchpanelUI(type, id, label, cs);
+                    if (this.tp.Register())
+                    {
+                        ErrorLog.Info($"{LogHeader} created and registered tp {label}");
+                    }
+                    else
+                    {
+                        ErrorLog.Error($"{LogHeader} Error created and registering tp {label}");
+                    }
 
                     // TODO: Level1. Dynamically set up sources using the config file
 
@@ -59,5 +75,5 @@ namespace Ex_DynamicRegistration
                 }
             }
         }
-    }
+    }//class
 }
